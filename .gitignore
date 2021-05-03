@@ -5,6 +5,7 @@ db.sqlite3
 **/__pycache__
 
 generator_g
+generator_g.zip
 
 .idea
 .vscode

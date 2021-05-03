@@ -37,6 +37,12 @@ class UserAuthModel(models.Model):
         return self.email
 
 
+class SignupAuthModel(models.Model):
+    uid = models.AutoField(primary_key=True)
+    email = models.EmailField(unique=True)
+    code = models.CharField(max_length=8)
+
+
 class SigninForm(forms.Form):
     uid = forms.CharField()  # 6479
     email = forms.EmailField()  # xxx@qq.com

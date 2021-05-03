@@ -1,3 +1,4 @@
 tensorflow
 django
 django-cors-headers
+numpy

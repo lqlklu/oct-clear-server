@@ -1,27 +1,10 @@
-from django.http import JsonResponse, FileResponse, Http404, HttpResponseNotFound
-import tensorflow as tf
+from django.http import JsonResponse, FileResponse, HttpResponseNotFound
+from oct_denoise.models import UploadModel, UploadForm, UserModel, SigninForm, SignupForm, UserAuthModel
 import os
 import uuid
 import time
 import datetime
-
-from oct_denoise.models import UploadModel, UploadForm, UserModel, SigninForm, SignupForm, UserAuthModel
-
-model = tf.keras.models.load_model("generator_g")
-
-
-def denoise(uf, rf):
-    img = tf.image.decode_image(tf.io.read_file(uf))
-    img = tf.reshape(img, (1, 256, 256, 1))
-    img = tf.cast(img, dtype=tf.float32)
-    img = tf.divide(tf.add(img, -127.5), 127.5)
-
-    r = model(img)
-
-    r = tf.reshape(r, (256, 256, 1))
-    r = tf.add(tf.multiply(r, 127.5), 127.5)
-    r = tf.cast(r, dtype=tf.uint8)
-    tf.io.write_file(rf, tf.image.encode_png(r))
+import oct_denoise.denoise as denoise
 
 
 def to_mills(d: datetime.datetime) -> int:
@@ -41,7 +24,7 @@ def upload_images(request):
         form = UploadForm(request.POST, request.FILES)
         if form.is_valid():
             f: UploadModel = form.save(commit=False)
-            file_name = str(uuid.uuid1()) + ".png"
+            file_name = str(uuid.uuid4()) + ".png"
             date_path = time.strftime("%Y/%m/%d", time.localtime())
             f_path = os.path.join(date_path, file_name)
             upload_path = os.path.join("upload", f_path)
@@ -52,17 +35,21 @@ def upload_images(request):
             f.disable = False
             f.upload_path = upload_path
             f.result_path = result_path
-            form.save()
-            denoise(upload_path, result_path)
-            r = {
-                "status": "ok",
-                "payload": {
-                    "name": file_name,
-                    "path": f_path,
-                    "user_id": f.user_id,
-                    "time": to_mills(f.uploaded_at),
-                },
-            }
+            f = form.save(commit=True)
+            try:
+                denoise.denoise(upload_path, result_path)
+                r = {
+                    "status": "ok",
+                    "payload": {
+                        "name": file_name,
+                        "path": f_path,
+                        "user_id": f.user_id,
+                        "time": to_mills(f.uploaded_at),
+                    },
+                }
+            except:
+                f.delete()
+                r['status'] = "err"
         return JsonResponse(r)
     return
 
