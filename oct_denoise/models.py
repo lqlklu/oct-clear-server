@@ -21,7 +21,7 @@ class UploadForm(forms.ModelForm):
 
 
 class UserModel(models.Model):
-    uid = models.AutoField(primary_key=True)
+    uid = models.BigAutoField(primary_key=True)
     email = models.CharField(max_length=256, unique=True)  # xxx@qq.com
 
     def __str__(self):
@@ -29,7 +29,7 @@ class UserModel(models.Model):
 
 
 class UserAuthModel(models.Model):
-    uid = models.AutoField(primary_key=True)
+    uid = models.BigAutoField(primary_key=True)
     email = models.CharField(max_length=256, unique=True)  # xxx@qq.com
     password = models.CharField(max_length=256, )  # abcdef
 
@@ -38,7 +38,7 @@ class UserAuthModel(models.Model):
 
 
 class SignupAuthModel(models.Model):
-    uid = models.AutoField(primary_key=True)
+    uid = models.BigAutoField(primary_key=True)
     email = models.EmailField(unique=True)
     code = models.CharField(max_length=8)
 
