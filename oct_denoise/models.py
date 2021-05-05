@@ -6,7 +6,7 @@ class UploadModel(models.Model):
     name = models.CharField(max_length=256, default="filename")  # "a1b2c3d4e5f6.png" md5
     file = models.FileField(upload_to=".")  # file
     uploaded_at = models.DateTimeField(auto_now_add=True)  # time
-    user_id = models.BigIntegerField(default=0)  # 6479
+    token = models.TextField(default="")
     path = models.CharField(max_length=256, default="")  # "2021/03/17/a1b2c3d4e5f6.png"
     disable = models.BooleanField(default=False)
 
@@ -17,7 +17,7 @@ class UploadModel(models.Model):
 class UploadForm(forms.ModelForm):
     class Meta:
         model = UploadModel
-        fields = ['file', 'user_id']
+        fields = ['file', 'token']
 
 
 class UserModel(models.Model):

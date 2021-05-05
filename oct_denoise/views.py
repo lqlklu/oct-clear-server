@@ -43,7 +43,7 @@ def upload_images(request):
                     "payload": {
                         "name": file_name,
                         "path": f_path,
-                        "user_id": f.user_id,
+                        "token": f.token,
                         "time": to_mills(f.uploaded_at),
                     },
                 }
@@ -77,18 +77,19 @@ def image(request, p):
     return
 
 
-def fetch_all(request, uid):
+def fetch_all(request):
     if request.method == 'GET':
         r = {
             "status": "ok",
             "payload": [],
         }
-        q = UploadModel.objects.filter(user_id=uid, disable=False)
+        token = request.GET.get("token", default="")
+        q = UploadModel.objects.filter(token=token, disable=False)
         for i in q:
             r["payload"].append({
                 "name": i.name,
                 "path": i.path,
-                "user_id": i.user_id,
+                "token": i.token,
                 "time": to_mills(i.uploaded_at),
             })
         return JsonResponse(r)

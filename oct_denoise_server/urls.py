@@ -21,7 +21,7 @@ urlpatterns = [
     path('octclear/admin/', admin.site.urls),
     path('octclear/upload_images/', upload_images),
     path('octclear/image/<path:p>', image),
-    path('octclear/fetch_all/<int:uid>', fetch_all),
+    path('octclear/fetch_all/', fetch_all),
     path('octclear/signup/', sign_up),
     path('octclear/signin/', sign_in),
 ]
