@@ -24,7 +24,7 @@ SECRET_KEY = '#4kvppsl&^+dg56@^l-v#%1omiv#5+ha*)7q*9pin=2(lyn#ju'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -122,6 +122,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
     'http://localhost',
     'http://127.0.0.1',
+    '*',
 )
 CORS_ALLOW_METHODS = (
     'DELETE',
