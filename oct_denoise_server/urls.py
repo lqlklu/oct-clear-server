@@ -18,10 +18,10 @@ from django.urls import path
 from oct_denoise.views import upload_images, image, fetch_all, sign_up, sign_in
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('upload_images/', upload_images),
-    path('image/<path:p>', image),
-    path('fetch_all/<int:uid>', fetch_all),
-    path('signup/', sign_up),
-    path('signin/', sign_in),
+    path('octclear/admin/', admin.site.urls),
+    path('octclear/upload_images/', upload_images),
+    path('octclear/image/<path:p>', image),
+    path('octclear/fetch_all/<int:uid>', fetch_all),
+    path('octclear/signup/', sign_up),
+    path('octclear/signin/', sign_in),
 ]
