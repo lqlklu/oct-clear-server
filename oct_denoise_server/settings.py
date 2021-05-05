@@ -146,3 +146,5 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
     'Pragma',
 )
+
+MEDIA_ROOT = "upload"

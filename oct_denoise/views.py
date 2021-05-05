@@ -25,13 +25,11 @@ def upload_images(request):
         if form.is_valid():
             f: UploadModel = form.save(commit=False)
             file_name = str(uuid.uuid4()) + ".png"
-            date_path = time.strftime("%Y/%m/%d", time.localtime())
-            f_path = os.path.join(date_path, file_name)
-            upload_path = os.path.join("upload", f_path)
-            result_path = os.path.join("result", f_path)
+            upload_path = os.path.join("upload", file_name)
+            result_path = os.path.join("result", file_name)
             f.name = file_name
-            f.file.name = upload_path
-            f.path = f_path
+            f.file.name = file_name
+            f.path = upload_path
             f.disable = False
             f.upload_path = upload_path
             f.result_path = result_path
@@ -42,7 +40,7 @@ def upload_images(request):
                     "status": "ok",
                     "payload": {
                         "name": file_name,
-                        "path": f_path,
+                        "path": file_name,
                         "token": f.token,
                         "time": to_mills(f.uploaded_at),
                     },
