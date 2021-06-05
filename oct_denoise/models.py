@@ -37,10 +37,11 @@ class UserAuthModel(models.Model):
         return self.email
 
 
-class SignupAuthModel(models.Model):
+class UserVerifyModel(models.Model):
     uid = models.BigAutoField(primary_key=True)
     email = models.EmailField(unique=True)
     code = models.CharField(max_length=8)
+    verified = models.BooleanField(default=False)
 
 
 class SigninForm(forms.Form):

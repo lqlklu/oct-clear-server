@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from oct_denoise.views import upload_images, image, fetch_all, sign_up, sign_in
+from oct_denoise.views import upload_images, image, fetch_all, sign_up, sign_in, verify
 
 urlpatterns = [
     path('octclear/admin/', admin.site.urls),
@@ -24,4 +24,5 @@ urlpatterns = [
     path('octclear/fetch_all/', fetch_all),
     path('octclear/signup/', sign_up),
     path('octclear/signin/', sign_in),
+    path('octclear/verify/', verify),
 ]

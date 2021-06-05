@@ -1,5 +1,7 @@
 from django.http import JsonResponse, FileResponse, HttpResponseNotFound
-from oct_denoise.models import UploadModel, UploadForm, UserModel, SigninForm, SignupForm, UserAuthModel
+from oct_denoise.models import UploadModel, UploadForm, UserModel, SigninForm, SignupForm, UserAuthModel, \
+    UserVerifyModel
+from oct_denoise.email_verify import send_mail, generate_code
 import os
 import uuid
 import time
@@ -94,6 +96,11 @@ def fetch_all(request):
     return
 
 
+email_host = "smtp.qq.com"
+email_user = "2891206380@qq.com"
+email_pwd = "oaqyjkbbypyhdhef"
+
+
 def sign_up(request, ):
     if request.method == "POST":
         r = {
@@ -108,11 +115,28 @@ def sign_up(request, ):
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            user = UserModel(email=email)
-            user_auth = UserAuthModel(email=email, password=password)
             try:
+                user = UserModel(email=email)
                 user.save()
+
+                user_auth = UserAuthModel(uid=user.uid, email=email, password=password)
                 user_auth.save()
+
+                code = generate_code()
+
+                user_verify = UserVerifyModel(uid=user.uid, email=email, code=code, verified=False)
+                user_verify.save()
+
+                email_content = "Your verify code is：%s" % code
+                email_title = "Verify code"
+                send_mail(
+                    host=email_host,
+                    user=email_user,
+                    pwd=email_pwd,
+                    receiver=email,
+                    content=email_content,
+                    title=email_title
+                )
                 r = {
                     "status": "ok",
                     "payload": {
@@ -121,12 +145,53 @@ def sign_up(request, ):
                     },
                     "code": 200,
                 }
-            except:
-                r['code'] = 403
-        else:
-            r['code'] = 300
+            except Exception as e:
+                r = {
+                    "status": "err",
+                    "payload": str(e),
+                    "code": 403
+                }
         return JsonResponse(r)
     return
+
+
+def verify(request):
+    if request.method == 'GET':
+        r = {
+            "status": "ok",
+            "payload": {},
+            "code": 404,
+        }
+        email = request.GET.get("email", default="")
+        predict_code = request.GET.get("code", default="")
+        try:
+            q: UserVerifyModel = UserVerifyModel.objects.get(email=email, verified=False)
+            if q.code == predict_code:
+                q.verified = True
+                q.save()
+                user: UserModel = UserModel.objects.get(email=email)
+                r = {
+                    "status": "ok",
+                    "payload": {
+                        "uid": user.uid,
+                        "email": user.email,
+                    },
+                    "code": 200,
+                }
+            else:
+                r = {
+                    "status": "err",
+                    "payload": "error verify code",
+                    "code": 403,
+                }
+        except Exception as e:
+            r = {
+                "status": "err",
+                "payload": str(e),
+                "code": 404,
+            }
+        return JsonResponse(r)
+    pass
 
 
 def sign_in(request):
@@ -140,16 +205,32 @@ def sign_in(request):
             try:
                 email = form.cleaned_data['email']
                 password = form.cleaned_data['password']
-                o: UserAuthModel = UserAuthModel.objects.get(email=email, password=password)
+                user_auth: UserAuthModel = UserAuthModel.objects.get(email=email, password=password)
+                user_verify: UserVerifyModel = UserVerifyModel.objects.get(email=email)
+                if user_verify.verified:
+                    r = {
+                        "status": "ok",
+                        "payload": {
+                            "uid": user_auth.uid,
+                            "email": user_auth.email,
+                        },
+                        "code": 200,
+                    }
+                else:
+                    r = {
+                        "status": "err",
+                        "payload": {
+                            "uid": user_auth.uid,
+                            "email": user_auth.email,
+                            "msg": "not verified"
+                        },
+                        "code": 403,
+                    }
+            except Exception as e:
                 r = {
-                    "status": "ok",
-                    "payload": {
-                        "uid": o.uid,
-                        "email": o.email,
-                    },
-                    "code": 200,
+                    "status": "err",
+                    "payload": str(e),
+                    "code": 404,
                 }
-            except:
-                r["code"] = 404
         return JsonResponse(r)
     return
